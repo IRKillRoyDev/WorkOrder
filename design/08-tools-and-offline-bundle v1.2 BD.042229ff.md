@@ -1,6 +1,7 @@
 # 08 Tools and the Compromise Check
 
 > **Rough bookmark, not a finished spec.** Start at `00`. There is no offline bundle any more: you install dependencies into the repo's `.venv/` from the normal package sources, pinned by hash, after each one passes the compromise check.
+> Revised 2026-10-30: the review viewer is the app's Review screen. The terminal viewer is gone.
 
 ## Tool picks
 Every pick is provisional until its row in `docs/compromise-check.md` shows PASS (`04` S11). Exact versions live in `requirements.lock` (Python packages, with sha256 hashes) and in `docs/compromise-check.md` (everything else). Those files, not this table, are the version authority.
@@ -14,7 +15,7 @@ Every pick is provisional until its row in `docs/compromise-check.md` shows PASS
 | Database | SQLCipher 4 built from a pinned source tag against OpenSSL 3 with the FIPS provider (`06` OD-4 closed; macOS build in OD-15), Python binding `sqlcipher3` built against it | source tarballs, built by a script in `scripts/` |
 | Hardware key unwrap | FIDO2 key with `hmac-secret`, through `python-fido2` | PyPI wheel |
 | Recovery split | a Shamir 2-of-3 tool or library (Default `ssss`) | picked through the compromise check |
-| Review viewer | `csvlook` (csvkit) piped to `less -S` | PyPI wheel + macOS |
+| Desktop windows | PySide6, macOS widget style (`06` OD-20). No Qt WebEngine and no import of QtNetwork. `scripts/` builds `WorkOrder.app` from this | PyPI wheel |
 | Lock file | `pip-tools` (`pip-compile --generate-hashes`) | PyPI wheel |
 | Tests and lint | `pytest`, `ruff` | PyPI wheels |
 | Version control | `git` | already installed |

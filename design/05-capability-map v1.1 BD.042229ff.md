@@ -1,8 +1,26 @@
 # 05 Software Capability Map
 
 > **Rough bookmark, not a finished spec.** It captures what we discussed so the concept is understood. Start at `00`.
+> Revised 2026-10-30: capabilities are screens in the Mac app, not terminal commands.
 
-The owner runs all capabilities in his terminal, after unlocking the database with his hardware key (`04` S5). Each query is audited (capability number and row count only). Queries read only `current_*` views and `parts_to_symptoms` (`03`). Every result prints the highest marking of the rows used, at the top and bottom (`04` S6).
+The owner opens the WorkOrder app and unlocks the database with his hardware key (`04` S5, `06` OD-19). Each query is audited (capability number and row count only). Queries read only `current_*` views and `parts_to_symptoms` (`03`). Every screen that shows rows carries the highest marking of those rows at the top and the bottom (`04` S6).
+
+## Screens
+One app, one window at a time. The marking banner stays up whenever rows are on screen.
+
+| Screen | What he does |
+|---|---|
+| First run | Picks the encrypted data volume. The app saves only that path, outside the repo (`09`). |
+| Unlock | Hardware-key check. Idle lock (15 minutes) returns here and wipes the key from memory. |
+| Status | Shows encrypted volume, outside repo, FIPS provider, network sandbox, Spotlight exclusion, Time Machine exclusion, SQLCipher, and cipher settings. Each is yes or no, or a named setting. |
+| Manuals | Lists PDFs already in `manuals/`. Starts a batch. Quarantine shows an error code and nothing else. |
+| Run | Per file: step, error code, page index. No page text. |
+| Review | Tables from the review bundle, `MARKING.txt` first. He confirms the zone-to-figure map and may correct one cell by row id (`02`). |
+| Load | Manifest sha256, highest marking, row counts, mismatch counts. Loads only after he types the first 8 characters of the sha256 (`06` OD-14). |
+| Imports | Inventory, parts requests, PMCS results, the publication index, and the exclude list. The file picker cannot leave the data location. |
+| Planning | Equipment, then capabilities 1 to 7 below. |
+| Audit | Chain check and the head hash. He runs it weekly and writes the head hash on paper. |
+| Maintain | Backup, restore to a scratch encrypted image, and purge of one batch. |
 
 ## Inputs
 | Input | Form | Where it goes |
@@ -17,7 +35,7 @@ The owner runs all capabilities in his terminal, after unlocking the database wi
 ## Capabilities (rules)
 1. **Symptom to parts.** For a symptom, list the parts named in its troubleshooting steps (`symptom_parts`), joined to `inventory` on part_number_norm, following supersession to the newest part number (`03`). Each part shows as on hand (on_hand_qty > 0) or not on hand, with lead_time_days. A part with no inventory row shows as "not on hand, lead time unknown".
 2. **Reverse lookup.** For a batch of part numbers, return their symptom, component and system associations from `parts_to_symptoms`. A part linked to symptoms under two or more different components is highlighted as a possible fault cluster across systems.
-3. **Exclude list.** By default, results hide parts with `consumable_flag = 1` or a category in `exclude_categories.csv` (kept by the owner in the data location: bolts, washers, gaskets and so on). One switch shows them again. Hidden counts are always printed.
+3. **Exclude list.** By default, results hide parts with `consumable_flag = 1` or a category in `exclude_categories.csv` (kept by the owner in the data location: bolts, washers, gaskets and so on). One switch shows them again. Hidden counts are always shown.
 4. **Combined cart.** Merge the task's `task_parts` with the diagnosis parts (cap 1 or a request list) into one cart: group by part_number_norm, sum quantities (diagnosis parts count 1 unless given), keep a source tag per line, apply cap 3.
 5. **PMCS evaluation.** Compare each result to its `pmcs_conditions` row using the comparator and min/max in the same unit. Show only failed conditions with `nmc_flag = 1` (they ground the asset). A condition whose threshold wasn't parsed shows as "check by hand", never as passed.
 6. **Zone to parts.** Each failed condition from cap 5 leads to its zone, and `zone_parts` (through the reviewed zone-to-figure map) lists that zone's candidate parts, with inventory status as in cap 1.
