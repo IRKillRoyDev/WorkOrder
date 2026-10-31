@@ -1,12 +1,12 @@
 # 02 PDF Extraction Pipeline Logic Spec
 
 > **Rough bookmark, not a finished spec.** It captures what we discussed so the concept is understood. Start at `00`.
-> Revised 2026-10-30: the owner runs this from the WorkOrder app, not a terminal.
+> Revised 2026-10-31: batch files sit in the data folder. The parser is not given the database passphrase.
 
-The owner runs this pipeline from the WorkOrder app (`05`, `06` OD-19). It works offline, and every file it reads or writes is in the encrypted data location (`09`). Grok Build writes the code and never runs it on real manuals. Inputs are TM and parts manual (RPSTL) PDFs. Outputs are CSVs whose columns match `01`, plus a review bundle. No AI or LLM component touches any content.
+The owner runs this pipeline from the WorkOrder app (`05`, `06` OD-19). It works offline, and every file it reads or writes is in the data folder (`09`). Grok Build writes the code and never runs it on real manuals. Inputs are TM and parts manual (RPSTL) PDFs. Outputs are CSVs whose columns match `01`, plus a review bundle. No AI or LLM component touches any content.
 
 ## Isolation for every step
-Each PDF is parsed in its own child process (`06` OD-16): no network, input opened read-only, output written only to that batch's folder, and no access to keys. Limits: 600 s wall time (the child is killed), 3000 pages and 50 megapixels per page image (checked in code), and 2 GB memory where macOS enforces it. Hitting a limit fails that file closed (error code, no partial output). Scratch files go to `tmp/<batch>/` in the data location (`04` S8).
+Each PDF is parsed in its own child process (`06` OD-16): no network, input opened read-only, output written only to that batch's folder, and the child is not given the database passphrase. Limits: 600 s wall time (the child is killed), 3000 pages and 50 megapixels per page image (checked in code), and 2 GB memory where macOS enforces it. Hitting a limit fails that file closed (error code, no partial output). Scratch files go to `tmp/<batch>/` in the data folder (`04` S8).
 
 ## Shared preprocessing (runs before both parsers)
 0. **Intake.** Check the file by magic bytes and structure, and reject anything that isn't a clean PDF. Reject password-protected PDFs. Drop JavaScript, launch/URI actions, embedded files, annotations, form fields and metadata before parsing (keep only content streams). Record `source_sha256`. Rejected files go to `quarantine/` in the data location with an error code, and nothing else is written.
@@ -28,7 +28,7 @@ Each PDF is parsed in its own child process (`06` OD-16): no network, input open
 Uppercase, trim, remove internal spaces, keep dashes and slashes. Keep `part_number_raw` unchanged. CAGE code and NSN go in their own columns, never concatenated. No letter-for-digit substitution (O/0, I/1): suspected OCR confusions go to `low_confidence.csv` instead of being "fixed". Changing the rule creates PNNORM-2. Never edit PNNORM-1 in place.
 
 ## Tech manual parser (TM) emits
-`components` (from the functional group structure), `symptoms` (malfunction number + title; `symptom_code` rule in `01`), `troubleshooting_steps` (the step tree with yes/no outcomes), `symptom_parts`, `zones` (PMCS item locations), `pmcs_conditions` (threshold parsed into min/max/unit/comparator; anything unparseable goes to review), `tasks` (with MAC labor hours) and `task_parts` (the procedure's "parts/materials required" list).
+`components` (from the functional group structure), `symptoms` (malfunction number + title; `symptom_code` rule in `01`), `troubleshooting_steps` (the step tree with yes/no outcomes), `symptom_parts`, `zones` (PMCS item locations), `pmcs_conditions` (threshold parsed into min/max/unit/comparator; anything unparseable goes to review), `tasks` (with MAC labor hours) and `task_parts` (the procedure's "parts/materials required" list, including a mandatory-replacement flag when the manual marks the part that way).
 **Part reference rule:** if a troubleshooting step prints a part number, use PNNORM-1. If it names a part only by name, match the name against `parts.description` within the same component's figures. Zero or multiple matches go to `unresolved_refs.csv` (row IDs and page only) for the review step. Never guess.
 
 ## Parts manual parser (RPSTL) emits
@@ -65,7 +65,7 @@ flowchart TD
   A[PDF in inbox] --> Z{Intake checks}
   Z -- reject --> Q[quarantine + error code]
   Z -- ok --> B{Per page: text or scanned?}
-  B -- scanned --> C[Tesseract OCR, local, sandboxed]
+  B -- scanned --> C[Tesseract OCR, local]
   B -- text --> D[Split into pages, keep page labels]
   C --> D
   D --> MK[Capture markings]

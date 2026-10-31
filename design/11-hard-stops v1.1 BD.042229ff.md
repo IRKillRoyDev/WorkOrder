@@ -7,8 +7,8 @@
 |---|---|
 | Manual content shows up where you can see it (a file in the repo, a paste, an error message with page text) | Where it showed up (path or message). Stop reading it, don't copy or summarize it. The owner follows `04` S12 |
 | Two design files disagree and `00`'s rule doesn't settle it | Both file names, the section names, and one line on the conflict |
-| A component fails the compromise check, or no clean version or alternative exists (`08`) | Component, version, and the IDs found (CVE, CISA catalog entry, advisory, incident, or CMVP certificate number and status) |
-| Capabilities 1 to 7 pass their tests | "Capabilities 1 to 7 done; 8 to 10 deferred (`06` D1 to D3)." Build 8 to 10 only when he says which |
+| A component fails the compromise check, or no clean version or alternative exists (`08`) | Component, version, and the IDs found (CVE, CISA catalog entry, advisory, or incident) |
+| The work order passes its tests | "Work order done. Vehicle details and the other items under Not in v1 in `05` are not built." Build those only when he says which |
 | A task seems to need manual content to get right | What you need to know, phrased so the owner can answer with codes, counts or row IDs |
 
 ## Tell the owner and keep going
