@@ -1,0 +1,40 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Virtual environment and build output
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+WorkOrder.app/
+
+# CUI: manual content, extracted data, databases and keys never go in the repo
+*.pdf
+*.PDF
+*.csv
+*.CSV
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.dmg
+*.sparsebundle
+*.sparseimage
+*.key
+*.pem
+*.wrapped
+audit.jsonl
+manuals/
+quarantine/
+batches/
+backups/
+data/
+keys/

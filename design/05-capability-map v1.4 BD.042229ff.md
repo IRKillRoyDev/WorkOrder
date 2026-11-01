@@ -4,12 +4,16 @@
 > Revised 2026-10-31: he unlocks the encrypted database with a passphrase. The disk is not encrypted.
 > Revised 2026-10-31: the planner opens a work order. This file describes that work order. The older seven-query layout is not what v1 builds.
 > Revised 2026-10-31: repair time is a system average for Diagnose, Repair, or Replace. The work order also prints a defect list for maintenance.
-> Revised 2026-10-31: the defect list stacks sections full width. Equipment, then Quality Control, then Maintenance. Inside a section the list splits into two columns.
+> Revised 2026-10-31: the defect list is a generated PDF. Equipment and Quality Control are on the screen. The Mechanic section is blank lines on the PDF only.
+> Revised 2026-10-31: Preferences shows the whole system name in the wide column, with a checkbox for Diagnose, Repair, and Replace. The defect list is the defects turned on from the Work order page. The window has Light and Dark.
+> Revised 2026-11-01: File > New opens a work order in its own window. That window has Main Work Order and Defects. The main window Status board is Open, Maint, Close, and Archive. Equipment lookup is later.
 
 The owner opens the WorkOrder app and unlocks the database with his passphrase (`04` S5, `06` OD-21). A work order reads only `current_*` views (`03`). Every screen that shows rows carries the highest marking of those rows at the top and the bottom (`04` S6). The people using it are planners, and the estimate is there so maintenance can set priorities.
 
 ## Screens
-One app, one window at a time. The marking banner stays up whenever rows are on screen.
+One app. The main window holds Status, Library, and Preferences. File > New opens a work order in its own window, with two tabs: Main Work Order, and Defects. Closing that window keeps the work order. The marking banner stays up whenever rows are on screen. The File menu has New, Open, Save, Save As, Import, Export, and Close.
+
+The Status item on the main window is the maintenance lifecycle. Each work order is a card in Open, Maint, Close, or Archive. A new work order starts in Open. He moves it from the card. This is not the database Status screen in the table below. Equipment lookup is a later tab on the main window, for past work orders. It is not in this stage. Do not invent equipment fields.
 
 | Screen | What he does |
 |---|---|
@@ -21,8 +25,9 @@ One app, one window at a time. The marking banner stays up whenever rows are on 
 | Review | Tables from the review bundle, `MARKING.txt` first. He confirms the zone-to-figure map and may correct one cell by row id (`02`). |
 | Load | Manifest sha256, highest marking, row counts, mismatch counts. Loads only after he types the first 8 characters of the sha256 (`06` OD-14). |
 | Imports | Three on-hand lists: DSI, SMU, and RIP. Each row is a part number and a quantity (`06` OD-6). |
-| Work order | New work order. Vehicle is a blank section for later. He adds major defects by system from the troubleshooting manual, and other defects as free text. For each major defect he picks Diagnose, Repair, or Replace. The work order shows outcomes, parts, on-hand quantities, the time estimate, and the defect list. |
-| Preferences | For each system, the average days to Diagnose, to Repair, and to Replace. Also the average lead time in days when a part is not on hand (`06` OD-12). |
+| Work order | File > New opens it in its own window. Main Work Order tab: vehicle section (blank for later), major defects by system from the troubleshooting manual, other defects as free text, Diagnose / Repair / Replace, outcomes, parts, on-hand quantities, and the time estimate. Defects tab: the defect list. |
+| Library | Publications grouped by platform, with the upload date. A platform opens to its maintenance and technical publications, because that list gets long. DSI, SMU, and RIP show their import dates on the front of the page. |
+| Preferences | For each system, the whole name in the wide column. Diagnose, Repair, and Replace each have a checkbox and the average days. A checked action is used on the work order. Also the average lead time in days when a part is not on hand (`06` OD-12). Light and Dark are in Preferences. |
 | Audit | Chain check and the head hash, when he wants to look. |
 | Maintain | Backup, restore, and purge of one batch. |
 
@@ -53,19 +58,23 @@ The clock time is not built defect by defect from the manual. For each system, P
 - If any required part is not on hand, add the average lead time once for the whole work order. Lead times do not add per part.
 
 ## Defect list
-The work order produces a defect list for the maintenance team. Sections stack down the page, each one full width. A section's own list splits down the middle into two columns so the width of that section gets used.
+The defect list is a report. The planner generates it as a PDF. Sections stack down the page, each one full width. A section's own list splits down the middle into two columns so the width of that section gets used.
 
-**Equipment.** The top section. It is on the page in v1 and its fields are not designed yet. More header items will be added later. Do not invent them.
+The Defects tab shows Equipment and Quality Control, and the button that writes the PDF. The Mechanic section is not on the screen. The lines on the screen are the defects the planner turned on from the Work order page. The defect list screen does not add or uncheck them.
 
-**Quality Control.** The next section. What QC found on the limited technical inspection. Each line has a checkbox. Checking a line saves on the work order. The lines fill the left column, then the right column. They are:
+**Equipment.** The top section of the screen and of the PDF. It is present in v1 and its fields are not designed yet. More header items will be added later. Do not invent them.
+
+**Quality Control.** The next section, on the screen and on the PDF. What QC found on the limited technical inspection, limited to the defects turned on from the Work order page. On the work order, each defect has a checkbox and starts on. Unchecking it takes it off this list and out of the time estimate. The lines fill the left column, then the right column. On the PDF, each line has an empty box so maintenance can mark the paper. They are:
 
 - Major: `[System] - [Troubleshooting Defect]`. Example: `Engine - No Crank, No Start`.
 - Other: `Other - [free-form Defect]`.
 
-**Maintenance.** The next section. Blank lines only, also in two columns. Maintenance writes here what they find on the detailed technical inspection. Nothing is prefilled. What they write is saved on the work order. These lines do not pull parts and do not change the time estimate.
+**Mechanic.** Drawn only when the PDF is generated. Blank lines, in two columns. The mechanic writes on the PDF what was found on the detailed technical inspection. Nothing is prefilled. The app does not store those lines. These lines do not pull parts and do not change the time estimate.
 
 ## Preferences
-For each system that appears in the troubleshooting manual: average days to Diagnose, average days to Repair, average days to Replace. One average lead time, in days, for a part that is not on hand. No per-task repair times. No shop-hours divisor (`06` OD-12).
+For each system that appears in the troubleshooting manual, the whole system name is the wide column. Average days to Diagnose, average days to Repair, and average days to Replace sit beside it. Each of those three has a checkbox. Checked means that action can be picked on a work order and its days count. Unchecked leaves that action out of the estimate. A defect already added still stays on the defect list. One average lead time, in days, for a part that is not on hand. No per-task repair times. No shop-hours divisor (`06` OD-12).
+
+The window follows the Mac appearance until the planner chooses Light or Dark.
 
 ## Ingest, before any work order
 | Input | What it supplies |

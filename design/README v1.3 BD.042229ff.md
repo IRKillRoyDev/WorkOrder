@@ -14,7 +14,7 @@ Use these copies. The older same-numbered files in this folder are earlier versi
 | `02-pdf-extraction-pipeline v1.2 BD.042229ff.md` | Intake, preprocessing, marking capture, the two parsers, reconciliation, review bundle, the load confirm screen |
 | `03-revision-tracking v1.0 BD.042229ff.md` | Revision order from the owner's publication index, change pages, full-column diffs, latest by default, supersession |
 | `04-security-encryption v1.3 BD.042229ff.md` | Data protections: data folder outside the repo, the encrypted database file, passphrase unlock, no network, markings, audit log, copies, backups, purge, the compromise check, spill procedure |
-| `05-capability-map v1.3 BD.042229ff.md` | Screens, inputs, the ten capabilities and their rules; build 1 to 7 |
+| `05-capability-map v1.4 BD.042229ff.md` | Screens, inputs, the ten capabilities and their rules; build 1 to 7 |
 | `06-known-gaps v1.3 BD.042229ff.md` | Decisions (owner only): 21 total, 15 open with recommended defaults, 6 closed or superseded (OD-2, OD-4, OD-15, OD-18, OD-19, OD-21). OD-21 wins on encryption |
 | `07-lab-review.md` | Lab's review. Background history only; don't build from it. Where it disagrees with the files above, they win |
 | `08-tools-and-offline-bundle v1.4 BD.042229ff.md` | Tools, including normal SQLCipher and the desktop window toolkit, the hash-pinned install and the compromise check |
